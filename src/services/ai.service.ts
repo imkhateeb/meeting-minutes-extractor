@@ -1,7 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { MinutesOfMeetingsResponse } from '../types';
 import { generateObject } from 'ai';
 import { minutesOfMeetingsResponseSchema } from '../schema';
+import { MinutesOfMeetingsResponse } from '../types';
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +10,7 @@ const openai = createOpenAI({
 
 export async function processMeetingWithAI(
   text: string
-): Promise<{ success: boolean; data?: MinutesOfMeetingsResponse; error?: string }> {
+): Promise<MinutesOfMeetingsResponse | null> {
   try {
     console.log('[INFO] Processing raw meeting data...');
 
@@ -39,15 +39,9 @@ ${text}
 
     console.log('[INFO] AI structured response:', JSON.stringify(response.object, null, 2));
 
-    return {
-        success: true,
-        data: response.object,
-    };
+    return response.object;
   } catch (error: unknown) {
     console.error('[ERROR] Failed to process meeting notes:', error);
-    return {
-        success: false,
-        error: 'Unable to process meeting data. Check server logs for details.',
-    };
+    return null;
   }
 }

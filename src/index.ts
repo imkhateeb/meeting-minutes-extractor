@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { rateLimiter } from './utils/rate-limiter';
 import { apiRouter } from './routes';
+import APP_CONFIG from './config';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api', rateLimiter, apiRouter);
 
-const PORT = process.env.PORT || 5000;
+const PORT: number = APP_CONFIG.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
