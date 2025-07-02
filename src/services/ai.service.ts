@@ -1,6 +1,8 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { minutesOfMeetingsResponseSchema } from '../schema';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
 if (!openaiApiKey) {
