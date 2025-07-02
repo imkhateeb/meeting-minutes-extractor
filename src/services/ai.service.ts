@@ -1,42 +1,53 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { ProcessMeetingResponse } from '../types';
+import { MinutesOfMeetingsResponse } from '../types';
+import { generateObject } from 'ai';
 import { minutesOfMeetingsResponseSchema } from '../schema';
-const { generateObject } = require("ai");
 
 const openai = createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    compatibility: "strict",
+  apiKey: process.env.OPENAI_API_KEY,
+  compatibility: 'strict',
 });
 
-export async function processMeetingWithAI(text: string): Promise<{success: boolean, data?: ProcessMeetingResponse, error?: string}> {
-    try {
-        console.log("[INFO] Raw Data Received:", text);
+export async function processMeetingWithAI(
+  text: string
+): Promise<{ success: boolean; data?: MinutesOfMeetingsResponse; error?: string }> {
+  try {
+    console.log('[INFO] Processing raw meeting data...');
 
-        const res = await generateObject({
-        model: openai("gpt-4o", { structuredOutputs: false }),
-        schemaName: "minutesOfMeetingsResponseSchema",
-        schemaDescription: "Comprehensive schema for parsing minutes of meeting",
+    const prompt = `
+You are an AI assistant that extracts structured data from meeting notes.
+Analyze the raw meeting text and return a JSON object following this schema:
+- summary: concise 2–3 sentence summary
+- decisions: key decisions as a list of strings
+- actionItems: list of objects with task (required), owner (optional), and due (optional)
+
+If no useful data is found, return an empty summary and empty lists.
+
+Raw meeting text:
+"""
+${text}
+"""
+`;
+
+    const response = await generateObject({
+        model: openai('gpt-4o'),
+        schemaName: 'MinutesOfMeetingsResponse',
+        schemaDescription: 'Structured summary, decisions and action items from meeting notes',
         schema: minutesOfMeetingsResponseSchema,
-        prompt: `
-            You are an assistant that extracts structured meeting summary, decisions and action items. 
-            Convert the input data into structured JSON using the provided schemas.
+        prompt,
+    });
 
-            Output:
-            - Return an error message if no valid data is found.
+    console.log('[INFO] AI structured response:', JSON.stringify(response.object, null, 2));
 
-            Input Raw Data: ${text}
-        `,
-        });
-
-        console.log("[INFO] Response Received:", JSON.stringify(res, null, 2));
-        return {
+    return {
         success: true,
-        data: JSON.parse(JSON.stringify(res.object, null, 2))
-        }
-    } catch (error: unknown) {
-        return { 
+        data: response.object,
+    };
+  } catch (error: unknown) {
+    console.error('[ERROR] Failed to process meeting notes:', error);
+    return {
         success: false,
-        error: "Unable to process data. Check logs for details. " + JSON.stringify(error)
-        };
-    }
-};
+        error: 'Unable to process meeting data. Check server logs for details.',
+    };
+  }
+}
