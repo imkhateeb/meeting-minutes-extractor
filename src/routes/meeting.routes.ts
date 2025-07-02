@@ -4,10 +4,10 @@ import multer from 'multer';
 import fs from 'fs';
 import { processMeetingNotes } from '../controllers/meeting.controller';
 
-const router = express.Router();
+const meetingRouter = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/process-meeting', upload.single('file'), async (req: Request, res: Response) => {
+meetingRouter.post('/process', upload.single('file'), async (req: Request, res: Response) => {
     try {
         if (req.file) {
             const text = fs.readFileSync(req.file.path, 'utf-8');
@@ -20,3 +20,5 @@ router.post('/process-meeting', upload.single('file'), async (req: Request, res:
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+export { meetingRouter };
