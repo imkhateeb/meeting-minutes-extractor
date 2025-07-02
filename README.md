@@ -96,9 +96,11 @@ npm run dev
 
 ## How to Test
 **Use Postman to test the API using these two methods:**
-1. Upload .txt file → form-data key: `file`
-- Download this file
-- Postman image
+
+**1. Upload .txt file → form-data key: `file`**
+- Download this [file](https://github.com/imkhateeb/meeting-minutes-extractor/blob/master/src/test-cases/file-meeting-notes.txt)
+- Upload & Test in Postman:
+![Screenshot 2025-07-03 000000](https://github.com/user-attachments/assets/0a48bb71-eb1b-4f11-9cfc-0715ae3ebcb7)
 - Response:
 ```json
 {
@@ -136,9 +138,10 @@ npm run dev
 }
 ```
 
-2. Send raw text → JSON body: `{ "text": "..." }`
-- Copy text data from this file
-- Postman image
+**2. Send raw text → JSON body: `{ "text": "..." }`**
+- Copy content of this [file](https://github.com/imkhateeb/meeting-minutes-extractor/blob/master/src/test-cases/text-meeting-notes.txt)
+- Test in Postman by pasting content as raw JSON:
+  ![Screenshot 2025-07-02 235926](https://github.com/user-attachments/assets/39006b2c-87a9-48f8-bfe0-8263e9ec3af3)
 - Response:
 ```json
 {
@@ -198,6 +201,3 @@ uploads/                 → Temporary uploaded files
 | POST  | `/api/meeting/process`  | Extract summary, decisions, and action items from raw text or uploaded `.txt` file |
 
 
----
-
-## Test Cases
