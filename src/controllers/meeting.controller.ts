@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { processMeetingWithAI } from '../services/ai.service';
+import { APIResponse } from '../types';
 
 export async function processMeetingNotes(req: Request, res: Response) {
   try {
@@ -12,14 +13,14 @@ export async function processMeetingNotes(req: Request, res: Response) {
         msg: "Meeting notes processed successfully",
         data: result,
         error: null
-      });
+      } as APIResponse);
     }else{
       res.status(404).json({
         status: "failure",
         msg: "Processed data not found!",
         data: result,
         error: "Processed data not found!, Try again after sometime",
-      });
+      } as APIResponse);
     }
     
   } catch (error: any) {
@@ -28,6 +29,6 @@ export async function processMeetingNotes(req: Request, res: Response) {
         error: error.message || 'Internal server error', 
         data: null, 
         msg: "Internal server error"
-    });
+    } as APIResponse);
   }
 }

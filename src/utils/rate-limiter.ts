@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { APIResponse } from "../types";
 
 const requestMap: Map<string, number[]> = new Map();
 
@@ -18,11 +19,11 @@ export function rateLimiter(req: Request, res: Response, next: NextFunction) {
             res
                 .status(429)
                 .json({ 
-                    success: "failure", 
+                    status: "failure", 
                     data: null, 
                     msg: "Too many requests", 
                     error: "Too many requests. Please try again later." 
-                });
+                } as APIResponse);
         }else{
             recentTimestamps.push(now);
             requestMap.set(ip, recentTimestamps);
