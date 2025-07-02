@@ -8,9 +8,9 @@ export type AppConfigType = {
     PORT: number
 }
 
-export type APIResponse = {
-    status: "success" | "failure",
-    msg: string,
-    data: any,
-    error: string | null
+export interface APIResponse<T = any> {
+    status: "success" | "failure";
+    msg: string;
+    data: T | null;
+    error: string | null;
 }

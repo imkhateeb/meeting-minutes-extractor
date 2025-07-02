@@ -1,47 +1,52 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { minutesOfMeetingsResponseSchema } from '../schema';
-import { MinutesOfMeetingsResponse } from '../types';
+
+const openaiApiKey = process.env.OPENAI_API_KEY;
+if (!openaiApiKey) {
+  console.error('[ERROR] Missing OPENAI_API_KEY');
+  process.exit(1);
+}
 
 const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: openaiApiKey,
   compatibility: 'strict',
 });
 
-export async function processMeetingWithAI(
-  text: string
-): Promise<MinutesOfMeetingsResponse | null> {
-  try {
-    console.log('[INFO] Processing raw meeting data...');
+export async function processMeetingWithAI(text: string) {
+  console.log('[INFO] Sending text to OpenAI, length:', text.length);
 
-    const prompt = `
+  const prompt = `
 You are an AI assistant that extracts structured data from meeting notes.
-Analyze the raw meeting text and return a JSON object following this schema:
-- summary: concise 2–3 sentence summary
-- decisions: key decisions as a list of strings
-- actionItems: list of objects with task (required), owner (optional), and due (optional)
+Return JSON matching this schema:
+- summary: concise summary
+- decisions: list of key decisions
+- actionItems: list of { task, optional owner, optional due }
 
-If no useful data is found, return an empty summary and empty lists.
+If no data, return empty summary & lists.
 
-Raw meeting text:
+Meeting text:
 """
 ${text}
 """
-`;
+  `;
 
-    const response = await generateObject({
+  try {
+    const response = await Promise.race([
+      generateObject({
         model: openai('gpt-4o'),
         schemaName: 'MinutesOfMeetingsResponse',
-        schemaDescription: 'Structured summary, decisions and action items from meeting notes',
+        schemaDescription: 'Structured meeting summary and action items',
         schema: minutesOfMeetingsResponseSchema,
         prompt,
-    });
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('AI request timed out')), 10000))
+    ]);
 
-    console.log('[INFO] AI structured response:', JSON.stringify(response.object, null, 2));
-
-    return response.object;
-  } catch (error: unknown) {
-    console.error('[ERROR] Failed to process meeting notes:', error);
+    console.log('[INFO] AI response received:', JSON.stringify((response as any).object, null, 2));
+    return (response as any).object;
+  } catch (error) {
+    console.error('[ERROR] AI request failed:', error);
     return null;
   }
 }
