@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.get('/health', (_req, res) => {
+app.get('/health', rateLimiter, (_req, res) => {
   res.send('OK');
 });
 
