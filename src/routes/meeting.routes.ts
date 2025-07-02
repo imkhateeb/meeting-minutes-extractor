@@ -1,16 +1,22 @@
 import express from 'express';
+import { Request, Response } from 'express';
 import multer from 'multer';
 import fs from 'fs';
+import { processMeetingNotes } from '../controllers/meeting.controller';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/process-meeting', upload.single('file'), async (req, res) => {
-  if (req.file) {
-    const text = fs.readFileSync(req.file.path, 'utf-8');
-    req.body.text = text;
-  }
-  // TODO: Implement meeting processing
+router.post('/process-meeting', upload.single('file'), async (req: Request, res: Response) => {
+    try {
+        if (req.file) {
+            const text = fs.readFileSync(req.file.path, 'utf-8');
+            (req.body as any).text = text;
+            fs.unlinkSync(req.file.path);
+        }
+        await processMeetingNotes(req, res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
-
-export default router;
