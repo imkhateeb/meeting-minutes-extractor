@@ -99,7 +99,7 @@ npm run dev
 
 **1. Upload .txt file → form-data key: `file`**
 - Download this [file](https://github.com/imkhateeb/meeting-minutes-extractor/blob/master/src/test-cases/file-meeting-notes.txt)
-- Upload & Test in Postman:
+- Upload downloaded file & Test in Postman:
 ![Screenshot 2025-07-03 000000](https://github.com/user-attachments/assets/0a48bb71-eb1b-4f11-9cfc-0715ae3ebcb7)
 - Response:
 ```json
